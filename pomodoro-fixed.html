@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番茄工作法</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        h1 {
+            color: #5a67d8;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            font-weight: bold;
+        }
+
+        .mode-indicator {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #e53e3e;
+            color: white;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mode-indicator.work {
+            background: #e53e3e;
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+        }
+
+        .mode-indicator.shortBreak {
+            background: #38a169;
+            box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
+        }
+
+        .mode-indicator.longBreak {
+            background: #3182ce;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+        }
+
+        .timer-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .controls {
+            margin: 30px 0;
+        }
+
+        button {
+            background: #5a67d8;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 0 10px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(90, 103, 216, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .settings {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+        }
+
+        .settings h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .setting-item {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-item input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #cbd5e0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .completed-sessions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0fff4;
+            border-radius: 10px;
+            border: 2px solid #48bb78;
+        }
+
+        .completed-sessions h3 {
+            color: #2f855a;
+            margin-bottom: 10px;
+        }
+
+        .session-count {
+            font-size: 2em;
+            color: #2f855a;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .timer-running {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>番茄工作法</h1>
+
+        <div class="mode-indicator work" id="modeIndicator">工作时间</div>
+
+        <div class="timer-display" id="timerDisplay">25:00</div>
+
+        <div class="controls">
+            <button id="startBtn">开始</button>
+            <button id="pauseBtn" disabled>暂停</button>
+            <button id="resetBtn">重置</button>
+            <button id="skipBtn">跳过</button>
+        </div>
+
+        <div class="settings">
+            <h3>设置</h3>
+            <div class="setting-item">
+                <label>工作时间（分钟）:</label>
+                <input type="number" id="workMinutes" value="25" min="1" max="60">
+            </div>
+            <div class="setting-item">
+                <label>短休息（分钟）:</label>
+                <input type="number" id="shortBreakMinutes" value="5" min="1" max="30">
+            </div>
+            <div class="setting-item">
+                <label>长休息（分钟）:</label>
+                <input type="number" id="longBreakMinutes" value="15" min="1" max="60">
+            </div>
+            <div class="setting-item">
+                <label>长休息间隔:</label>
+                <input type="number" id="longBreakInterval" value="4" min="2" max="10">
+            </div>
+        </div>
+
+        <div class="completed-sessions">
+            <h3>已完成番茄数</h3>
+            <div class="session-count" id="sessionCount">0</div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const timerDisplay = document.getElementById('timerDisplay');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const sessionCountDisplay = document.getElementById('sessionCount');
+
+        // 设置元素
+        const workMinutesInput = document.getElementById('workMinutes');
+        const shortBreakMinutesInput = document.getElementById('shortBreakMinutes');
+        const longBreakMinutesInput = document.getElementById('longBreakMinutes');
+        const longBreakIntervalInput = document.getElementById('longBreakInterval');
+
+        // 状态变量
+        let workMinutes = 25;
+        let shortBreakMinutes = 5;
+        let longBreakMinutes = 15;
+        let longBreakInterval = 4;
+
+        let currentMode = 'work'; // 'work', 'shortBreak', 'longBreak'
+        let isRunning = false;
+        let timeLeft = workMinutes * 60;
+        let completedSessions = 0;
+        let sessionCount = 0;
+        let interval = null;
+
+        // 事件监听器
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        skipBtn.addEventListener('click', skipTimer);
+
+        workMinutesInput.addEventListener('change', updateSettings);
+        shortBreakMinutesInput.addEventListener('change', updateSettings);
+        longBreakMinutesInput.addEventListener('change', updateSettings);
+        longBreakIntervalInput.addEventListener('change', updateSettings);
+
+        function updateSettings() {
+            workMinutes = parseInt(workMinutesInput.value) || 25;
+            shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
+            longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
+            longBreakInterval = parseInt(longBreakIntervalInput.value) || 4;
+
+            // 如果不在运行中，更新当前时间显示
+            if (!isRunning) {
+                if (currentMode === 'work') {
+                    timeLeft = workMinutes * 60;
+                } else if (currentMode === 'shortBreak') {
+                    timeLeft = shortBreakMinutes * 60;
+                } else if (currentMode === 'longBreak') {
+                    timeLeft = longBreakMinutes * 60;
+                }
+                updateDisplay();
+            }
+        }
+
+        function startTimer() {
+            isRunning = true;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            timerDisplay.classList.add('timer-running');
+
+            interval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    timerComplete();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            timerDisplay.classList.remove('timer-running');
+
+            if (interval) {
+                clearInterval(interval);
+            }
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            currentMode = 'work';
+            timeLeft = workMinutes * 60;
+            updateDisplay();
+        }
+
+        function skipTimer() {
+            pauseTimer();
+            switchMode();
+        }
+
+        function switchMode() {
+            if (currentMode === 'work') {
+                sessionCount++;
+                completedSessions++;
+
+                if (sessionCount % longBreakInterval === 0) {
+                    currentMode = 'longBreak';
+                    timeLeft = longBreakMinutes * 60;
+                } else {
+                    currentMode = 'shortBreak';
+                    timeLeft = shortBreakMinutes * 60;
+                }
+            } else {
+                currentMode = 'work';
+                timeLeft = workMinutes * 60;
+            }
+
+            updateDisplay();
+        }
+
+        function timerComplete() {
+            pauseTimer();
+            playNotificationSound();
+
+            // 自动切换模式
+            setTimeout(() => {
+                switchMode();
+            }, 3000);
+        }
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // 更新模式指示器
+            modeIndicator.className = 'mode-indicator';
+
+            if (currentMode === 'work') {
+                modeIndicator.textContent = '工作时间';
+                modeIndicator.classList.add('work');
+            } else if (currentMode === 'shortBreak') {
+                modeIndicator.textContent = '短休息';
+                modeIndicator.classList.add('shortBreak');
+            } else if (currentMode === 'longBreak') {
+                modeIndicator.textContent = '长休息';
+                modeIndicator.classList.add('longBreak');
+            }
+
+            // 更新已完成番茄数
+            sessionCountDisplay.textContent = completedSessions;
+        }
+
+        function playNotificationSound() {
+            // 创建音频上下文来播放提示音
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // 初始化显示
+        updateDisplay();
+    </script>
+</body>
+</html>
