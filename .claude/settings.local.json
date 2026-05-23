@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npx create-react-app *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git config *)",
+      "Bash(curl -u \"ylscook\" -d '{\"name\":\"pomodoro-timer\",\"description\":\"番茄钟项目 - 多个版本的番茄工作法应用\",\"private\":false}' https://api.github.com/user/repos)",
+      "Bash(gh repo *)",
+      "Bash(git add *)"
     ]
   }
 }

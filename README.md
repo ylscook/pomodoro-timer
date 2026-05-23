@@ -73,3 +73,50 @@ npm start
 ## 作者
 
 根据您提供的UI设计图开发的番茄钟应用。
+
+## GitHub
+
+本项目已上传至GitHub，您可以：
+
+### 查看项目
+[GitHub链接 - 等待配置]
+
+### 克隆项目
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
+```
+
+### 运行项目
+
+1. **HTML版本**
+   ```bash
+   # 直接在浏览器中打开
+   open timer.html
+   # 或
+   open pomodoro.html
+   # 或
+   open pomodoro-fixed.html
+   ```
+
+2. **Electron桌面版**
+   ```bash
+   cd desktop-timer
+   npm install
+   npm start
+   ```
+
+3. **React版本**
+   ```bash
+   cd react-pomodoro
+   npm install
+   npm start
+   ```
+
+## 贡献
+
+欢迎提交Issue和Pull Request！
+
+## 许可证
+
+MIT License
