@@ -106,7 +106,7 @@ cd YOUR_REPO_NAME
    npm start
    ```
 
-3. **React版本**
+3. **React版本
    ```bash
    cd react-pomodoro
    npm install
@@ -120,3 +120,6 @@ cd YOUR_REPO_NAME
 ## 许可证
 
 MIT License
+
+---
+*注：本项目最初由claude-code练习创建，包含番茄钟应用的各种实现方式。*
